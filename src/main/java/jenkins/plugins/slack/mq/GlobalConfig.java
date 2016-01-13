@@ -19,6 +19,7 @@ public class GlobalConfig extends GlobalConfiguration {
 	
 	private static final Logger logger = Logger.getLogger(GlobalConfig.class.getName());
 
+	private boolean slackEnableSqsIntegration = false;
     private String slackSqsQueue;
     private String slackAwsAccessKeyId;
     private Secret slackAwsSecretAccessKey;
@@ -29,28 +30,28 @@ public class GlobalConfig extends GlobalConfiguration {
     }
 
     public FormValidation doCheckSlackSqsQueue(@QueryParameter String value) {
-        if (StringUtils.isBlank(value)) {
+        if (slackEnableSqsIntegration && StringUtils.isBlank(value)) {
             return FormValidation.warning("Please set a queue name or URL");
         }
         return FormValidation.ok();
     }
     
     public FormValidation doCheckSlackAwsAccessKeyId(@QueryParameter String value) {
-        if (StringUtils.isBlank(value)) {
+        if (slackEnableSqsIntegration && StringUtils.isBlank(value)) {
             return FormValidation.warning("Please set an access key id");
         }
         return FormValidation.ok();
     }
     
     public FormValidation doCheckSlackAwsSecretAccessKey(@QueryParameter String value) {
-        if (StringUtils.isBlank(value)) {
+        if (slackEnableSqsIntegration && StringUtils.isBlank(value)) {
             return FormValidation.warning("Please set a secret access key");
         }
         return FormValidation.ok();
     }
     
     public FormValidation doCheckSlackTokenForSqsIntegration(@QueryParameter String value) {
-        if (StringUtils.isBlank(value)) {
+        if (slackEnableSqsIntegration && StringUtils.isBlank(value)) {
             return FormValidation.warning("Please set a token from Slack integration");
         }
         return FormValidation.ok();
@@ -122,5 +123,13 @@ public class GlobalConfig extends GlobalConfiguration {
 	public void setSlackTokenForSqsIntegration(
 			String slackTokenForSqsIntegration) {
 		this.slackTokenForSqsIntegration = slackTokenForSqsIntegration;
+	}
+	
+	public boolean isSlackEnableSqsIntegration() {
+		return slackEnableSqsIntegration;
+	}
+	
+	public void setSlackEnableSqsIntegration(boolean slackEnableSqsIntegration) {
+		this.slackEnableSqsIntegration = slackEnableSqsIntegration;
 	}
 }
