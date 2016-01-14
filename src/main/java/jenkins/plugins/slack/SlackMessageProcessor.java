@@ -18,11 +18,11 @@ import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
 /**
- * Created by ivanvojinovic on 1/14/16.
+ * This class processes the commands posted from slack.
  */
 public class SlackMessageProcessor {
 
-    private static final Logger LOGGER = Logger.getLogger(SqsQueueHandler.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(SlackMessageProcessor.class.getName());
 
     public String process(String message) {
 
