@@ -1,6 +1,8 @@
 package jenkins.plugins.slack.mq;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  * The response from Amazon SQS
@@ -9,6 +11,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class SqsResponse {
 
     public String text;
+
+    @JsonProperty("channel_name")
+    public String channelName;
 
     public String getText() {
 
@@ -20,11 +25,22 @@ public class SqsResponse {
         this.text = text;
     }
 
+    public String getChannelName() {
+
+        return channelName;
+    }
+
+    public void setChannelName(String channelName) {
+
+        this.channelName = channelName;
+    }
+
     @Override
     public String toString() {
 
-        return new org.apache.commons.lang3.builder.ToStringBuilder(this)
+        return new ToStringBuilder(this)
                 .append("text", text)
+                .append("channelName", channelName)
                 .toString();
     }
 }
