@@ -9,6 +9,7 @@ import hudson.security.ACL;
 import jenkins.model.GlobalConfiguration;
 import jenkins.model.Jenkins;
 import jenkins.plugins.slack.mq.GlobalConfig;
+import jenkins.plugins.slack.mq.SqsResponse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,15 +25,12 @@ public class SlackMessageProcessor {
 
     private static final Logger LOGGER = Logger.getLogger(SlackMessageProcessor.class.getName());
 
-    public String process(String message) {
+    public String process(SqsResponse slackMessage) {
 
         String response = "";
 
         try {
-            SlackMessage slackTextMessage =
-                new ObjectMapper().readValue(message, SlackMessage.class);
-
-            String command = slackTextMessage.getText();
+            String command = slackMessage.getText();
             LOGGER.info("processing -" + command);
 
             String listProjectPattern = "list projects";
@@ -44,7 +42,7 @@ public class SlackMessageProcessor {
             }
             if(isValidCommand(command, scheduleJobPattern)) {
                 String[] parametersArray = getParamaters(command, scheduleJobPattern);
-                response = scheduleJob(parametersArray[0], slackTextMessage.getUser_name());
+                response = scheduleJob(parametersArray[0], slackMessage.getUser_name());
             }
             LOGGER.info("response -" + response);
 

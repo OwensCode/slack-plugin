@@ -12,6 +12,8 @@ public class SqsResponse {
 
     public String text;
 
+    private String user_name;
+
     @JsonProperty("channel_name")
     public String channelName;
 
@@ -42,5 +44,15 @@ public class SqsResponse {
                 .append("text", text)
                 .append("channelName", channelName)
                 .toString();
+    }
+
+    public void setUser_name(String user_name) {
+
+        this.user_name = user_name;
+    }
+
+    public String getUser_name() {
+
+        return this.user_name;
     }
 }
