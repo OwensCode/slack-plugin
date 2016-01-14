@@ -8,7 +8,9 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static org.mockito.BDDMockito.given;
@@ -31,7 +33,7 @@ public class SqsQueueHandlerTest {
     @Test
     public void testReceiverGetsPutOntoQueueSuccessfully() throws Exception {
 
-        SqsProfile sqsProfile = new SqsProfile("123456", null, "Test-Queue");
+        SqsProfile sqsProfile = new SqsProfile("123456", null, "Test-Queue", null);
 
         doReturn(null).when(sqsQueueHandler).getGlobalConfiguration();
 
@@ -49,11 +51,55 @@ public class SqsQueueHandlerTest {
         verify(sqsQueueHandler, times(1)).getSqsProfile(null);
     }
 
+    @Test
+    public void testReceiverGetsPutOntoQueueEmptyChannelListSuccessfully() throws Exception {
+
+        SqsProfile sqsProfile = new SqsProfile("123456", null, "Test-Queue", new ArrayList<String>());
+
+        doReturn(null).when(sqsQueueHandler).getGlobalConfiguration();
+
+        doReturn(false).when(sqsQueueHandler).getQueueInProgress();
+
+        doReturn(true).when(sqsQueueHandler).isQueueEnabled(null);
+
+        doReturn(sqsProfile).when(sqsQueueHandler).getSqsProfile(null);
+
+        given(queue.getInProgress()).willReturn(new HashSet<Runnable>());
+
+        sqsQueueHandler.doRun();
+
+        verify(sqsQueueHandler, times(1)).getGlobalConfiguration();
+        verify(sqsQueueHandler, times(1)).getSqsProfile(null);
+    }
+
+    @Test
+    public void testReceiverGetsPutOntoQueueChannelListSuccessfully() throws Exception {
+
+        List<String> channels = new ArrayList<String>();
+        channels.add("Test-Queue");
+
+        SqsProfile sqsProfile = new SqsProfile("123456", null, "Test-Queue", channels);
+
+        doReturn(null).when(sqsQueueHandler).getGlobalConfiguration();
+
+        doReturn(false).when(sqsQueueHandler).getQueueInProgress();
+
+        doReturn(true).when(sqsQueueHandler).isQueueEnabled(null);
+
+        doReturn(sqsProfile).when(sqsQueueHandler).getSqsProfile(null);
+
+        given(queue.getInProgress()).willReturn(new HashSet<Runnable>());
+
+        sqsQueueHandler.doRun();
+
+        verify(sqsQueueHandler, times(1)).getGlobalConfiguration();
+        verify(sqsQueueHandler, times(1)).getSqsProfile(null);
+    }
 
     @Test
     public void testReceiverGetsPutOntoQueueNotEnabledSuccessfully() throws Exception {
 
-        SqsProfile sqsProfile = new SqsProfile("123456", null, "Test-Queue");
+        SqsProfile sqsProfile = new SqsProfile("123456", null, "Test-Queue", null);
 
         doReturn(null).when(sqsQueueHandler).getGlobalConfiguration();
 
@@ -88,7 +134,45 @@ public class SqsQueueHandlerTest {
             }
         });
 
-        SqsProfile sqsProfile = new SqsProfile("123456", null, "Test-Queue");
+        SqsProfile sqsProfile = new SqsProfile("123456", null, "Test-Queue", null);
+
+        doReturn(null).when(sqsQueueHandler).getGlobalConfiguration();
+
+        doReturn(true).when(sqsQueueHandler).getQueueInProgress();
+
+        doReturn(true).when(sqsQueueHandler).isQueueEnabled(null);
+
+        doReturn(sqsProfile).when(sqsQueueHandler).getSqsProfile(null);
+
+        given(queue.getInProgress()).willReturn(runnable);
+
+        sqsQueueHandler.doRun();
+
+        verify(sqsQueueHandler, times(1)).getGlobalConfiguration();
+        verify(sqsQueueHandler, times(0)).getSqsProfile(null);
+    }
+
+    @Test
+    public void testReceiverNotPutOntoQueueChannelNameMismatchSuccessfully() throws Exception {
+
+        Set<Runnable> runnable = new HashSet<Runnable>();
+
+        runnable.add(new Runnable() {
+            public void run() {
+
+            }
+        });
+
+        runnable.add(new Runnable() {
+            public void run() {
+
+            }
+        });
+
+        List<String> channels = new ArrayList<String>();
+        channels.add("Wrong-Queue");
+
+        SqsProfile sqsProfile = new SqsProfile("123456", null, "Test-Queue", channels);
 
         doReturn(null).when(sqsQueueHandler).getGlobalConfiguration();
 

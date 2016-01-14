@@ -54,7 +54,7 @@ public class SqsQueueHandler extends PeriodicWork {
      */
     protected SqsProfile getSqsProfile(GlobalConfig globalConfig) {
         return new SqsProfile(globalConfig.getSlackAwsAccessKeyId(), globalConfig.getSlackAwsSecretAccessKey(),
-                globalConfig.getSlackSqsQueue());
+                globalConfig.getSlackSqsQueue(), globalConfig.getSlackChannels());
     }
 
     /**

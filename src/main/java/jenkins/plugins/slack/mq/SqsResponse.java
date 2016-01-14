@@ -12,10 +12,11 @@ public class SqsResponse {
 
     public String text;
 
-    private String user_name;
-
     @JsonProperty("channel_name")
     public String channelName;
+
+    @JsonProperty("user_name")
+    private String userName;
 
     public String getText() {
 
@@ -37,22 +38,23 @@ public class SqsResponse {
         this.channelName = channelName;
     }
 
+    public String getUserName() {
+
+        return userName;
+    }
+
+    public void setUserName(String user_name) {
+
+        this.userName = user_name;
+    }
+
     @Override
     public String toString() {
 
         return new ToStringBuilder(this)
                 .append("text", text)
                 .append("channelName", channelName)
+                .append("userName", userName)
                 .toString();
-    }
-
-    public void setUser_name(String user_name) {
-
-        this.user_name = user_name;
-    }
-
-    public String getUser_name() {
-
-        return this.user_name;
     }
 }

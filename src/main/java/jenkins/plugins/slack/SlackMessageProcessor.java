@@ -1,6 +1,5 @@
 package jenkins.plugins.slack;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.Project;
@@ -15,8 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This class processes the commands posted from slack.
@@ -42,7 +41,7 @@ public class SlackMessageProcessor {
             }
             if(isValidCommand(command, scheduleJobPattern)) {
                 String[] parametersArray = getParamaters(command, scheduleJobPattern);
-                response = scheduleJob(parametersArray[0], slackMessage.getUser_name());
+                response = scheduleJob(parametersArray[0], slackMessage.getUserName());
             }
             LOGGER.info("response -" + response);
 

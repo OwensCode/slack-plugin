@@ -55,9 +55,17 @@ public class SqsQueueReceiver implements Runnable {
                 LOGGER.info("got payload -" + message.getBody());
                 SqsResponse response = new ObjectMapper().readValue(message.getBody(), SqsResponse.class);
                 LOGGER.info("parsed json -" + response);
-                processor.process(response);
+
+                //Only process if message is from correct channel or no channels are specified
+                if (response.getChannelName() == null
+                        || response.getChannelName().isEmpty()
+                        || profile.getChannels().contains(response.getChannelName())) {
+                    processor.process(response);
+                } else {
+                    LOGGER.info("Message ignored because it came from an invalid channel: " + response.getChannelName());
+                }
             } catch (Exception ex) {
-                LOGGER.log(Level.SEVERE,"unable to trigger builds " + ex.getMessage(),ex);
+                LOGGER.log(Level.SEVERE, "unable to trigger builds " + ex.getMessage(), ex);
             } finally {
                 //delete the message even if it failed
                 sqs.deleteMessage(new DeleteMessageRequest()

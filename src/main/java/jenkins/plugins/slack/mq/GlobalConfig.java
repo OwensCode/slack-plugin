@@ -1,19 +1,18 @@
 package jenkins.plugins.slack.mq;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import hudson.Extension;
 import hudson.util.FormValidation;
 import hudson.util.Secret;
 import jenkins.model.GlobalConfiguration;
 import net.sf.json.JSONObject;
-
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Extension
 public class GlobalConfig extends GlobalConfiguration {
@@ -101,7 +100,7 @@ public class GlobalConfig extends GlobalConfiguration {
 		}
         
     	try {
-            SqsProfile profile = new SqsProfile(awsAccessKeyId, awsSecretAccessKey, sqsQueue);
+            SqsProfile profile = new SqsProfile(awsAccessKeyId, awsSecretAccessKey, sqsQueue, null);
             String queue = profile.getQueueUrl();
             if(queue != null) {
                 return FormValidation.ok("Verified SQS Queue " + queue);

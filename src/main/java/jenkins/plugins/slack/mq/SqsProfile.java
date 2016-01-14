@@ -3,18 +3,17 @@
  */
 package jenkins.plugins.slack.mq;
 
-import hudson.model.AbstractDescribableImpl;
-import hudson.util.Secret;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.kohsuke.stapler.DataBoundConstructor;
-
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClient;
 import com.amazonaws.services.sqs.model.CreateQueueRequest;
+import hudson.model.AbstractDescribableImpl;
+import hudson.util.Secret;
+import org.kohsuke.stapler.DataBoundConstructor;
+
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * SqsProfile to access SQS
@@ -26,6 +25,7 @@ public class SqsProfile extends AbstractDescribableImpl<SqsProfile> implements A
     public final String awsAccessKeyId;
     public final Secret awsSecretAccessKey;
     public final String sqsQueue;
+    public final List<String> channels;
 
     static final String queueUrlRegex = "^https://sqs\\.(.+?)\\.amazonaws\\.com/(.+?)/(.+)$";
     static final Pattern endpointPattern = Pattern.compile("(sqs\\..+?\\.amazonaws\\.com)");
@@ -34,11 +34,12 @@ public class SqsProfile extends AbstractDescribableImpl<SqsProfile> implements A
 
 
     @DataBoundConstructor
-    public SqsProfile(String awsAccessKeyId, Secret awsSecretAccessKey, String sqsQueue) {
+    public SqsProfile(String awsAccessKeyId, Secret awsSecretAccessKey, String sqsQueue, List<String> channels) {
         this.awsAccessKeyId = awsAccessKeyId;
         this.awsSecretAccessKey = awsSecretAccessKey;
         this.sqsQueue = sqsQueue;
         this.urlSpecified = Pattern.matches(queueUrlRegex, sqsQueue);
+        this.channels = channels;
         this.client = null;
     }
 
@@ -48,6 +49,11 @@ public class SqsProfile extends AbstractDescribableImpl<SqsProfile> implements A
 
     public String getAWSSecretKey() {
         return awsSecretAccessKey.getPlainText();
+    }
+
+    public List<String> getChannels() {
+
+        return channels;
     }
 
     public AmazonSQS getSQSClient() {
