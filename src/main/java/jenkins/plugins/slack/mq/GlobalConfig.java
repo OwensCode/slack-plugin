@@ -1,5 +1,7 @@
 package jenkins.plugins.slack.mq;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -7,7 +9,6 @@ import hudson.Extension;
 import hudson.util.FormValidation;
 import hudson.util.Secret;
 import jenkins.model.GlobalConfiguration;
-import jenkins.plugins.slack.SlackListener;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
@@ -23,11 +24,34 @@ public class GlobalConfig extends GlobalConfiguration {
     private String slackAwsAccessKeyId;
     private Secret slackAwsSecretAccessKey;
     private String slackTokenForSqsIntegration;
-
+    private String slackChannelsStr;
+    private String triggerWord = "jenkins";
+    
     public GlobalConfig() {
         load();
+        slackChannelsStr = cleanupChannelList(slackChannelsStr);
     }
-
+    
+    @Override
+    public boolean configure(StaplerRequest req, JSONObject json)
+            throws FormException {
+    	
+    	if (json.containsKey("slackEnableSqsIntegration")) {
+    		JSONObject config = json.getJSONObject("slackEnableSqsIntegration");
+    		req.bindJSON(this, config);
+    	} else {
+    		req.bindJSON(this, json);
+    	}
+    	
+    	slackChannelsStr = cleanupChannelList(slackChannelsStr);
+        
+        save();
+        
+        logger.log(Level.WARNING, "Channels (after save): " + this.getSlackChannels().toString());
+        
+        return true;
+    }
+    
     public FormValidation doCheckSlackSqsQueue(@QueryParameter String value) {
         if (StringUtils.isBlank(value)) {
             return FormValidation.warning("Please set a queue name or URL");
@@ -55,19 +79,12 @@ public class GlobalConfig extends GlobalConfiguration {
         }
         return FormValidation.ok();
     }
-
-    @Override
-    public boolean configure(StaplerRequest req, JSONObject json)
-            throws FormException {
-    	
-    	if (!json.isEmpty() && json.containsKey("slackEnableSqsIntegration")) {
-    		JSONObject config = json.getJSONObject("slackEnableSqsIntegration");
-    		req.bindJSON(this, config);
-    	}
-        
-        save();
-        
-        return true;
+    
+    public FormValidation doCheckTriggerWord(@QueryParameter String value) {
+        if (StringUtils.isBlank(value)) {
+            return FormValidation.warning("You must set a trigger word or phrase");
+        }
+        return FormValidation.ok();
     }
 
     public FormValidation doTestConnection(
@@ -130,7 +147,45 @@ public class GlobalConfig extends GlobalConfiguration {
 		this.slackTokenForSqsIntegration = slackTokenForSqsIntegration;
 	}
 	
-	public boolean isSlackEnableSqsIntegration() {
-		return !StringUtils.isBlank(slackSqsQueue);
+	public String getSlackChannelsStr() {
+		return slackChannelsStr;
 	}
+
+	public void setSlackChannelsStr(String slackChannelsStr) {
+		this.slackChannelsStr = slackChannelsStr;
+	}
+
+	public String getTriggerWord() {
+		return triggerWord;
+	}
+
+	public void setTriggerWord(String triggerWord) {
+		this.triggerWord = triggerWord;
+	}
+
+	public List<String> getSlackChannels() {
+		List<String> slackChannels = new ArrayList<String>();
+    	
+    	if (slackChannelsStr != null) {
+    		String[] items = slackChannelsStr.split("[,; ]+");
+    		
+    		for (int i = 0; i < items.length; ++i) {
+    			String item = StringUtils.trimToNull(items[i]);
+    			if (item != null) {
+    				item = StringUtils.removeStart(item, "#");
+    				slackChannels.add(item);
+    			}
+    		}
+    	}
+    	
+    	return slackChannels;
+	}
+
+	public boolean isSlackEnableSqsIntegration() {
+		return StringUtils.isNotBlank(slackSqsQueue);
+	}
+	
+	private String cleanupChannelList(String delimitedList) {
+    	return StringUtils.join(getSlackChannels(), ",");
+    }
 }
