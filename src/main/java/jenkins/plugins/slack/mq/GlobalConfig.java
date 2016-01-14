@@ -20,6 +20,7 @@ public class GlobalConfig extends GlobalConfiguration {
 	
 	private static final Logger logger = Logger.getLogger(GlobalConfig.class.getName());
 
+	private boolean enabled;
     private String slackSqsQueue;
     private String slackAwsAccessKeyId;
     private Secret slackAwsSecretAccessKey;
@@ -39,15 +40,14 @@ public class GlobalConfig extends GlobalConfiguration {
     	if (json.containsKey("slackEnableSqsIntegration")) {
     		JSONObject config = json.getJSONObject("slackEnableSqsIntegration");
     		req.bindJSON(this, config);
+    		enabled = true;
     	} else {
-    		req.bindJSON(this, json);
+    		enabled = false;
     	}
     	
     	slackChannelsStr = cleanupChannelList(slackChannelsStr);
         
         save();
-        
-        logger.log(Level.WARNING, "Channels (after save): " + this.getSlackChannels().toString());
         
         return true;
     }
@@ -113,6 +113,14 @@ public class GlobalConfig extends GlobalConfiguration {
             return FormValidation.error("Failed to validate the account. Check the Jenkins log files.");
         }
     }
+
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
 
 	public String getSlackSqsQueue() {
 		return slackSqsQueue;
@@ -181,10 +189,6 @@ public class GlobalConfig extends GlobalConfiguration {
     	return slackChannels;
 	}
 
-	public boolean isSlackEnableSqsIntegration() {
-		return StringUtils.isNotBlank(slackSqsQueue);
-	}
-	
 	private String cleanupChannelList(String delimitedList) {
     	return StringUtils.join(getSlackChannels(), ",");
     }
