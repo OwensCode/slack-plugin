@@ -5,7 +5,9 @@ import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.Result;
 import hudson.security.ACL;
+import jenkins.model.GlobalConfiguration;
 import jenkins.model.Jenkins;
+import jenkins.plugins.slack.mq.GlobalConfig;
 
 import java.util.List;
 import java.util.logging.Level;
@@ -44,13 +46,17 @@ public class SlackMessageProcessor {
     }
 
     private boolean isValidCommand(String command, String patternString) {
-        Pattern pattern = Pattern.compile("^jenkins " + patternString);
+
+        GlobalConfig globalConfig = GlobalConfiguration.all().get(GlobalConfig.class);
+
+        Pattern pattern = Pattern.compile("^" + globalConfig.getTriggerWord() + " " + patternString);
         Matcher matcher = pattern.matcher(command);
 
         return matcher.matches();
     }
 
     private String listProjects() {
+
         ACL.impersonate(ACL.SYSTEM);
         String response = "*Projects:*\n";
 
