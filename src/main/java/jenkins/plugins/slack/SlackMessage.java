@@ -10,6 +10,8 @@ public class SlackMessage {
 
     private String text;
 
+    private String user_name;
+
     public SlackMessage() { }
 
     public void setText(String text) {
@@ -18,5 +20,13 @@ public class SlackMessage {
 
     public String getText() {
         return this.text;
+    }
+
+    public void setUser_name(String user_name) {
+        this.user_name = user_name;
+    }
+
+    public String getUser_name() {
+        return this.user_name;
     }
 }
