@@ -63,7 +63,7 @@ public class SlackNotifier extends Notifier {
     }
 
     public String getBuildServerUrl() {
-        if(buildServerUrl == null || buildServerUrl == "") {
+        if (buildServerUrl == null || buildServerUrl.equals("")) {
             JenkinsLocationConfiguration jenkinsConfig = new JenkinsLocationConfiguration();
             return jenkinsConfig.getUrl();
         }
@@ -229,7 +229,7 @@ public class SlackNotifier extends Notifier {
         }
 
         public String getBuildServerUrl() {
-            if(buildServerUrl == null || buildServerUrl == "") {
+            if (buildServerUrl == null || buildServerUrl.equals("")) {
                 JenkinsLocationConfiguration jenkinsConfig = new JenkinsLocationConfiguration();
                 return jenkinsConfig.getUrl();
             }
@@ -275,7 +275,7 @@ public class SlackNotifier extends Notifier {
             room = sr.getParameter("slackRoom");
             buildServerUrl = sr.getParameter("slackBuildServerUrl");
             sendAs = sr.getParameter("slackSendAs");
-            if(buildServerUrl == null || buildServerUrl == "") {
+            if (buildServerUrl == null || buildServerUrl.equals("")) {
                 JenkinsLocationConfiguration jenkinsConfig = new JenkinsLocationConfiguration();
                 buildServerUrl = jenkinsConfig.getUrl();
             }
