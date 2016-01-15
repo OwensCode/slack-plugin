@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<jenkins.plugins.slack.mq.GlobalConfig plugin="slack@2.0-SNAPSHOT">
+  <enabled>true</enabled>
+  <slackSqsQueue>Jenkins-Slack-Plugin-UT</slackSqsQueue>
+  <slackAwsAccessKeyId>ACCESS_KEY</slackAwsAccessKeyId>
+  <slackAwsSecretAccessKey>SECRET_KEY</slackAwsSecretAccessKey>
+  <slackTokenForSqsIntegration>SLACK_TOKEN</slackTokenForSqsIntegration>
+  <slackChannelsStr>general, build,#random</slackChannelsStr>
+  <triggerWord>james</triggerWord>
+</jenkins.plugins.slack.mq.GlobalConfig>

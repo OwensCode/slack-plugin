@@ -1,6 +1,6 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
     <f:section title="${%Amazon SQS Configuration for Slack Integration}">
-        <f:optionalBlock title="${%Enable}" field="slackEnableSqsIntegration" name="slackEnableSqsIntegration" checked="${instance.isEnabled()}">
+        <f:optionalBlock title="${%Enable}" field="slackEnableSqsIntegration" checked="${instance.isEnabled()}">
             <f:entry title="${%SQS Queue Name or URL}" field="slackSqsQueue">
                 <f:textbox/>
             </f:entry>

@@ -100,7 +100,7 @@ public class GlobalConfig extends GlobalConfiguration {
 		}
         
     	try {
-            SqsProfile profile = new SqsProfile(awsAccessKeyId, awsSecretAccessKey, sqsQueue, null);
+            SqsProfile profile = getSqsProfile(awsAccessKeyId, awsSecretAccessKey, sqsQueue);
             String queue = profile.getQueueUrl();
             if(queue != null) {
                 return FormValidation.ok("Verified SQS Queue " + queue);
@@ -186,6 +186,11 @@ public class GlobalConfig extends GlobalConfiguration {
     	}
     	
     	return slackChannels;
+	}
+
+	// Method that can be overridden for unit testing without calling AWS
+	protected SqsProfile getSqsProfile(String awsAccessKeyId, Secret awsSecretAccessKey, String sqsQueue) {
+		return new SqsProfile(awsAccessKeyId, awsSecretAccessKey, sqsQueue, null);
 	}
 
 	private String cleanupChannelList(String delimitedList) {
