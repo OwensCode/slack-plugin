@@ -4,7 +4,9 @@ import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.Project;
 import hudson.model.Result;
+import hudson.model.Descriptor;
 import hudson.security.ACL;
+import hudson.tasks.Publisher;
 import jenkins.model.GlobalConfiguration;
 import jenkins.model.Jenkins;
 import jenkins.plugins.slack.mq.GlobalConfig;
@@ -12,6 +14,7 @@ import jenkins.plugins.slack.mq.SqsResponse;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -37,11 +40,11 @@ public class SlackMessageProcessor {
 
 
             if(isValidCommand(command, listProjectPattern)) {
-                response = listProjects();
+                response = listProjects(slackMessage.getChannelName());
             }
             if(isValidCommand(command, scheduleJobPattern)) {
                 String[] parametersArray = getParamaters(command, scheduleJobPattern);
-                response = scheduleJob(parametersArray[0], slackMessage.getUserName());
+                response = scheduleJob(parametersArray[0], slackMessage.getUserName(), slackMessage.getChannelName());
             }
             LOGGER.info("response -" + response);
 
@@ -87,7 +90,21 @@ public class SlackMessageProcessor {
         return parametersArray;
     }
 
-    private String listProjects() {
+    private void sendSlackNotificationForProject(AbstractProject project, String mesasage, String channelName) {
+
+        Map<Descriptor<Publisher>, Publisher> map = project.getPublishersList().toMap();
+        for (Publisher publisher : map.values()) {
+            if (publisher instanceof SlackNotifier) {
+                String token = ((SlackNotifier) publisher).getAuthToken();
+                String teamDomain = ((SlackNotifier) publisher).getTeamDomain();
+                SlackService testSlackService = new StandardSlackService(teamDomain, token, "#" + channelName);
+                testSlackService.publish(mesasage, "good");
+            }
+        }
+
+    }
+
+    private String listProjects(String channelName) {
 
         ACL.impersonate(ACL.SYSTEM);
         String response = "*Projects:*\n";
@@ -116,11 +133,8 @@ public class SlackMessageProcessor {
                 }
                 response += ">*"+job.getDisplayName() + "*\n>*Last Build:* #"+buildNumber+"\n>*Status:* "+status;
                 response += "\n\n\n";
-                response += ">*"+job.getFullName() + "*\n>*Last Build:* #"+buildNumber+"\n>*Status:* "+status;
-                response += "\n\n\n";
-                response += ">*"+job.getFullDisplayName() + "*\n>*Last Build:* #"+buildNumber+"\n>*Status:* "+status;
-                response += "\n\n\n";
-                response += ">*"+job.getName() + "*\n>*Last Build:* #"+buildNumber+"\n>*Status:* "+status;
+
+                sendSlackNotificationForProject(job, response, channelName);
             }
         }
 
@@ -130,7 +144,7 @@ public class SlackMessageProcessor {
         return response;
     }
 
-    public String scheduleJob(String projectName, String slackUser) {
+    public String scheduleJob(String projectName, String slackUser, String channelName) {
 
         ACL.impersonate(ACL.SYSTEM);
 
@@ -139,14 +153,18 @@ public class SlackMessageProcessor {
 
         boolean success = false;
 
-        if (project != null)
+        if (project != null) {
             success = project.scheduleBuild(new SlackCause(slackUser));
-        else
-            return "Could not find project ("+projectName+")\n";
+        } else {
+            return "Could not find project (" + projectName + ")\n";
+        }
 
-        if (success)
-            return "Build scheduled for project "+ projectName+"\n";
-        else
+        if (success) {
+            String response = "Build scheduled for project " + projectName + "\n";
+            sendSlackNotificationForProject(project, response, channelName);
+            return response;
+        } else {
             return "Build not scheduled due to an issue with Jenkins";
+        }
     }
 }
