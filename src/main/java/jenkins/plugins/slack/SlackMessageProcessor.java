@@ -90,18 +90,16 @@ public class SlackMessageProcessor {
         return parametersArray;
     }
 
-    private void sendSlackNotificationForProject(AbstractProject project, String mesasage, String channelName) {
+    private void sendSlackNotificationForProject(AbstractProject project, String message, String channelName) {
 
-        Map<Descriptor<Publisher>, Publisher> map = project.getPublishersList().toMap();
-        for (Publisher publisher : map.values()) {
-            if (publisher instanceof SlackNotifier) {
-                String token = ((SlackNotifier) publisher).getAuthToken();
-                String teamDomain = ((SlackNotifier) publisher).getTeamDomain();
-                SlackService testSlackService = new StandardSlackService(teamDomain, token, "#" + channelName);
-                testSlackService.publish(mesasage, "good");
-            }
-        }
+        Descriptor<Publisher> publisher = Jenkins.getInstance().getPublisher("SlackNotifier");
+        SlackNotifier.DescriptorImpl slackNotifier = (SlackNotifier.DescriptorImpl) publisher;
 
+        String token = slackNotifier.getToken();
+        String teamDomain = slackNotifier.getTeamDomain();
+
+        SlackService testSlackService = new StandardSlackService(teamDomain, token, "#" + channelName);
+        testSlackService.publish(message, "good");
     }
 
     private String listProjects(String channelName) {
